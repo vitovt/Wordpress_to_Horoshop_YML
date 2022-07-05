@@ -152,11 +152,11 @@ public function console_log( $data ){
     }
 
     private function get_taxonomy_value ($taxonomy_name, $product_id) {
-        $sql = "SELECT taxonomy, name FROM gu_term_relationships 
-LEFT JOIN gu_term_taxonomy
-  ON gu_term_relationships.term_taxonomy_id = gu_term_taxonomy.term_taxonomy_id
-LEFT JOIN gu_terms
-  ON gu_terms.term_id = gu_term_taxonomy.term_id
+        $sql = "SELECT taxonomy, name FROM {$this->tp}term_relationships 
+LEFT JOIN {$this->tp}term_taxonomy
+  ON {$this->tp}term_relationships.term_taxonomy_id = {$this->tp}term_taxonomy.term_taxonomy_id
+LEFT JOIN {$this->tp}terms
+  ON {$this->tp}terms.term_id = {$this->tp}term_taxonomy.term_id
 WHERE taxonomy IN (?) AND object_id = ?";
         $stmt = $this->pdo->prepare($sql);
         $opts = array($taxonomy_name, $product_id);
@@ -258,45 +258,45 @@ GROUP BY {$this->tp}term_taxonomy.term_id";
   {$this->tp}postmeta4.meta_value AS stock,
   {$this->tp}postmeta5.meta_value AS product_attributes_raw,
   {$this->tp}postmeta6.meta_value AS default_attributes_raw,
-  GROUP_CONCAT( DISTINCT gu_terms.term_id ORDER BY gu_terms.name SEPARATOR ',' ) AS ProductCategories
-FROM gu_posts
-LEFT JOIN gu_postmeta gu_postmeta1
-  ON gu_postmeta1.post_id = gu_posts.ID
-  AND gu_postmeta1.meta_key = '_sku'
-LEFT JOIN gu_postmeta gu_postmeta2
-  ON gu_postmeta2.post_id = gu_posts.ID
-  AND gu_postmeta2.meta_key = '_price'
-LEFT JOIN gu_postmeta gu_postmeta3
-  ON gu_postmeta3.post_id = gu_posts.ID
-  AND gu_postmeta3.meta_key = '_stock'
-LEFT JOIN gu_postmeta gu_postmeta4
-  ON gu_postmeta4.post_id = gu_posts.ID
-  AND gu_postmeta4.meta_key = '_stock_status'
-LEFT JOIN gu_postmeta gu_postmeta5
-  ON gu_postmeta5.post_id = gu_posts.ID
-  AND gu_postmeta5.meta_key = '_product_attributes'
-LEFT JOIN gu_postmeta gu_postmeta6
-  ON gu_postmeta5.post_id = gu_posts.ID
-  AND gu_postmeta5.meta_key = '_default_attributes'
-LEFT JOIN gu_term_relationships
-  ON gu_term_relationships.object_id = gu_posts.ID
-LEFT JOIN gu_term_taxonomy
-  ON gu_term_relationships.term_taxonomy_id = gu_term_taxonomy.term_taxonomy_id
-  AND gu_term_taxonomy.taxonomy = '{$this->term_catalog}'
-LEFT JOIN gu_terms
-  ON gu_term_taxonomy.term_id = gu_terms.term_id
-WHERE gu_posts.post_type = 'product'
- AND gu_posts.post_status = 'publish'";
+  GROUP_CONCAT( DISTINCT {$this->tp}terms.term_id ORDER BY {$this->tp}terms.name SEPARATOR ',' ) AS ProductCategories
+FROM {$this->tp}posts
+LEFT JOIN {$this->tp}postmeta {$this->tp}postmeta1
+  ON {$this->tp}postmeta1.post_id = {$this->tp}posts.ID
+  AND {$this->tp}postmeta1.meta_key = '_sku'
+LEFT JOIN {$this->tp}postmeta {$this->tp}postmeta2
+  ON {$this->tp}postmeta2.post_id = {$this->tp}posts.ID
+  AND {$this->tp}postmeta2.meta_key = '_price'
+LEFT JOIN {$this->tp}postmeta {$this->tp}postmeta3
+  ON {$this->tp}postmeta3.post_id = {$this->tp}posts.ID
+  AND {$this->tp}postmeta3.meta_key = '_stock'
+LEFT JOIN {$this->tp}postmeta {$this->tp}postmeta4
+  ON {$this->tp}postmeta4.post_id = {$this->tp}posts.ID
+  AND {$this->tp}postmeta4.meta_key = '_stock_status'
+LEFT JOIN {$this->tp}postmeta {$this->tp}postmeta5
+  ON {$this->tp}postmeta5.post_id = {$this->tp}posts.ID
+  AND {$this->tp}postmeta5.meta_key = '_product_attributes'
+LEFT JOIN {$this->tp}postmeta {$this->tp}postmeta6
+  ON {$this->tp}postmeta5.post_id = {$this->tp}posts.ID
+  AND {$this->tp}postmeta5.meta_key = '_default_attributes'
+LEFT JOIN {$this->tp}term_relationships
+  ON {$this->tp}term_relationships.object_id = {$this->tp}posts.ID
+LEFT JOIN {$this->tp}term_taxonomy
+  ON {$this->tp}term_relationships.term_taxonomy_id = {$this->tp}term_taxonomy.term_taxonomy_id
+  AND {$this->tp}term_taxonomy.taxonomy = '{$this->term_catalog}'
+LEFT JOIN {$this->tp}terms
+  ON {$this->tp}term_taxonomy.term_id = {$this->tp}terms.term_id
+WHERE {$this->tp}posts.post_type = 'product'
+ AND {$this->tp}posts.post_status = 'publish'";
 
         if($this->x_product_id) {
             $sql .= " AND ID = ?";
             $opts[] = $this->x_product_id;
         }
 
-$sql .= " GROUP BY gu_posts.ID
-ORDER BY gu_posts.ID ASC ";
+$sql .= " GROUP BY {$this->tp}posts.ID
+ORDER BY {$this->tp}posts.ID ASC ";
 
-        // $sql .= " GROUP BY gu_posts.ID ";
+        // $sql .= " GROUP BY {$this->tp}posts.ID ";
         if($this->x_limit) {
             $sql .= ' LIMIT ?';
             $opts[] = $this->x_limit;
@@ -306,7 +306,7 @@ ORDER BY gu_posts.ID ASC ";
         $stmt->execute($opts);
 
         $sql2 = "SELECT * FROM {$this->tp}posts
-WHERE gu_posts.post_type = 'product_variation'
+WHERE {$this->tp}posts.post_type = 'product_variation'
 AND post_parent = ?";
         $stmt2 = $this->pdo->prepare($sql2);
 
