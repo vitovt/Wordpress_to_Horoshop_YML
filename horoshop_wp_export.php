@@ -183,6 +183,9 @@ WHERE taxonomy IN (?) AND object_id = ?";
         $shop->addChild('company', "Horoshop");
         $shop->addChild('url', "https://www.horoshop.ua/");
         $shop->addChild('version', "1.0.1");
+        $sql = "SET SESSION sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute();
 
  // #### Categories Section ####
         $categories = $shop->addChild('categories');
