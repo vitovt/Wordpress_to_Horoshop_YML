@@ -11,10 +11,10 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-if(php_sapi_name() == 'cli') {
-    $arguments = getopt("",array(
+$allowed_args = array(
         "x_baseurl:",
         "x_limit:",
+        "x_product_id:",
         "x_cat_limit:",
         "x_simplecat:",
         "x_lang:",
@@ -23,7 +23,26 @@ if(php_sapi_name() == 'cli') {
         "x_product_custom:", //todo
         "x_fix_utf:",
         "x_show_empty_aliases:",
-    ));
+);
+
+if(php_sapi_name() == 'cli') {
+    $arguments = getopt("",$allowed_args);
+
+    //wrong or misspelled argumets check:
+    $all_args = array();
+    foreach($argv as $temp) {
+        $all_args[] = preg_replace('#--(.*)=.*#i', '$1:', $temp);
+    }
+    array_shift($all_args); //remove first item = php filename
+    // var_dump($all_args);
+    $bad_args = array_diff($all_args, $allowed_args);
+    if(!empty($bad_args)) {
+        echo 'Wrong or misspelled arguments:' . PHP_EOL;
+        var_dump($bad_args);
+        die('Fix your input!');
+    }
+
+
     $XML_KEY=true;
     $base_url = 'https://horoshop.ua';
 } else {
