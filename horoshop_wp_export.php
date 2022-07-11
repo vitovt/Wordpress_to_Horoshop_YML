@@ -68,8 +68,9 @@ class YGenerator {
     private $pdo;
     private $tp;
 
-    // private $term_catalog = 'product_cat';
-    private $term_catalog = 'pa_jeffekty-chaja-1';
+
+    private $term_catalog = 'product_cat';
+    //private $term_catalog = 'pa_jeffekty-chaja-1';
 
     public  $base_url;          //URL сайта, базовый для ссылок и картинок
     public $x_pretty = 1; //Красивое форматирование XML - Человекочитабельный формат или в одну строку
