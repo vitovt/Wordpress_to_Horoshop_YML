@@ -172,12 +172,16 @@ public function console_log( $data ){
     }
 
     private function get_taxonomy_value ($taxonomy_name, $product_id) {
-        $sql = "SELECT taxonomy, name FROM {$this->tp}term_relationships 
-LEFT JOIN {$this->tp}term_taxonomy
-  ON {$this->tp}term_relationships.term_taxonomy_id = {$this->tp}term_taxonomy.term_taxonomy_id
-LEFT JOIN {$this->tp}terms
-  ON {$this->tp}terms.term_id = {$this->tp}term_taxonomy.term_id
-WHERE taxonomy IN (?) AND object_id = ?";
+        $sql = <<< SQL
+        SELECT     taxonomy, name
+        FROM      {$this->tp}term_relationships
+        LEFT JOIN {$this->tp}term_taxonomy
+        ON        {$this->tp}term_relationships.term_taxonomy_id = {$this->tp}term_taxonomy.term_taxonomy_id
+        LEFT JOIN {$this->tp}terms
+        ON        {$this->tp}terms.term_id = {$this->tp}term_taxonomy.term_id
+        WHERE     taxonomy IN (?)
+        AND       object_id = ?
+        SQL;
         $stmt = $this->pdo->prepare($sql);
         $opts = array($taxonomy_name, $product_id);
         $stmt->execute($opts);
@@ -207,7 +211,7 @@ WHERE taxonomy IN (?) AND object_id = ?";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute();
 
- // #### Categories Section ####
+        // #### Categories Section ####
         $categories = $shop->addChild('categories');
         $sql = "SELECT *, {$this->tp}terms.term_id AS tid
 FROM {$this->tp}term_relationships
@@ -261,14 +265,9 @@ GROUP BY {$this->tp}term_taxonomy.term_id";
 
         $offers = $shop->addChild('offers');
 
-        //Разбивка по авторам
-        #SELECT user_nicename, display_name FROM wp_users WHERE ID = 8;
-        $sql = "SELECT * FROM {$this->tp}posts LIMIT ?";
 
         $opts = array();
-// --   {$this->tp}terms.`term_id` AS 'attribute_value_id',
-// --   {$this->tp}term_taxonomy.taxonomy AS 'attribute_name',
-// --   {$this->tp}terms.`name` AS 'attribute_value',
+
         $sql = "SELECT
   {$this->tp}posts.ID AS product_id,
   {$this->tp}posts.post_title AS name,
@@ -346,9 +345,9 @@ AND post_parent = ?";
             $opts3 = array($ID);
             $stmt3->execute($opts3);
             $pictures = $stmt3->fetchAll();
+            $offer_id = $product['product_id'];
 
             if($variation_count) {
-                $offer_id = $product['product_id'];
                 $categories = explode(',', $product['ProductCategories']);
                 while ($variation = $stmt2->fetch()) {
                     $variation_id = $variation['ID'];
@@ -392,7 +391,6 @@ AND post_parent = ?";
                     }
             } else {
 
-                $offer_id = $product['product_id'];
                 $categories = explode(',', $product['ProductCategories']);
                 $offer = $offers->addChild('offer');
                 $offer->addAttribute("id", $offer_id);
