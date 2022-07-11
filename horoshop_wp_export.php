@@ -190,6 +190,27 @@ public function console_log( $data ){
         return $values['name'];
     }
 
+        private function getCategoryOfProduct($productId) {
+            $taxonomy_name = $this->term_catalog;
+            $values = array();
+
+            $sql = <<< SQL
+            SELECT taxonomy, name, {$this->tp}terms.term_id FROM {$this->tp}term_relationships
+                    LEFT JOIN {$this->tp}term_taxonomy
+                        ON {$this->tp}term_relationships.term_taxonomy_id = {$this->tp}term_taxonomy.term_taxonomy_id
+                    LEFT JOIN {$this->tp}terms
+                        ON {$this->tp}terms.term_id = {$this->tp}term_taxonomy.term_id
+                    WHERE taxonomy IN (?) AND object_id = ?
+            SQL;
+            $stmt = $this->pdo->prepare($sql);
+            $opts = array($taxonomy_name, $productId);
+            $stmt->execute($opts);
+            while ($value = $stmt->fetch()) {
+                $values[] = $value['term_id'];
+            }
+            return $values;
+        }
+
     /**
      * Building YML
      * @return SimpleXMLElement
@@ -279,8 +300,7 @@ GROUP BY {$this->tp}term_taxonomy.term_id";
   {$this->tp}postmeta3.meta_value AS quantity,
   {$this->tp}postmeta4.meta_value AS stock,
   {$this->tp}postmeta5.meta_value AS product_attributes_raw,
-  {$this->tp}postmeta6.meta_value AS default_attributes_raw,
-  GROUP_CONCAT( DISTINCT {$this->tp}terms.term_id ORDER BY {$this->tp}terms.name SEPARATOR ',' ) AS ProductCategories
+  {$this->tp}postmeta6.meta_value AS default_attributes_raw
 FROM {$this->tp}posts
 LEFT JOIN {$this->tp}postmeta {$this->tp}postmeta1
   ON {$this->tp}postmeta1.post_id = {$this->tp}posts.ID
@@ -298,15 +318,8 @@ LEFT JOIN {$this->tp}postmeta {$this->tp}postmeta5
   ON {$this->tp}postmeta5.post_id = {$this->tp}posts.ID
   AND {$this->tp}postmeta5.meta_key = '_product_attributes'
 LEFT JOIN {$this->tp}postmeta {$this->tp}postmeta6
-  ON {$this->tp}postmeta5.post_id = {$this->tp}posts.ID
-  AND {$this->tp}postmeta5.meta_key = '_default_attributes'
-LEFT JOIN {$this->tp}term_relationships
-  ON {$this->tp}term_relationships.object_id = {$this->tp}posts.ID
-LEFT JOIN {$this->tp}term_taxonomy
-  ON {$this->tp}term_relationships.term_taxonomy_id = {$this->tp}term_taxonomy.term_taxonomy_id
-  AND {$this->tp}term_taxonomy.taxonomy = '{$this->term_catalog}'
-LEFT JOIN {$this->tp}terms
-  ON {$this->tp}term_taxonomy.term_id = {$this->tp}terms.term_id
+  ON {$this->tp}postmeta6.post_id = {$this->tp}posts.ID
+  AND {$this->tp}postmeta6.meta_key = '_default_attributes'
 WHERE {$this->tp}posts.post_type = 'product'
  AND {$this->tp}posts.post_status = 'publish'";
 
@@ -315,8 +328,8 @@ WHERE {$this->tp}posts.post_type = 'product'
             $opts[] = $this->x_product_id;
         }
 
-$sql .= " GROUP BY {$this->tp}posts.ID
-ORDER BY {$this->tp}posts.ID ASC ";
+        //GROUP BY {$this->tp}posts.ID
+        //$sql .= " ORDER BY {$this->tp}posts.ID ASC ";
 
         // $sql .= " GROUP BY {$this->tp}posts.ID ";
         if($this->x_limit) {
@@ -345,10 +358,10 @@ AND post_parent = ?";
             $opts3 = array($ID);
             $stmt3->execute($opts3);
             $pictures = $stmt3->fetchAll();
+            $categories = $this->getCategoryOfProduct($ID);
             $offer_id = $product['product_id'];
 
             if($variation_count) {
-                $categories = explode(',', $product['ProductCategories']);
                 while ($variation = $stmt2->fetch()) {
                     $variation_id = $variation['ID'];
                     $offer = $offers->addChild('offer');
@@ -391,7 +404,6 @@ AND post_parent = ?";
                     }
             } else {
 
-                $categories = explode(',', $product['ProductCategories']);
                 $offer = $offers->addChild('offer');
                 $offer->addAttribute("id", $offer_id);
                 unset($product['product_id']);
