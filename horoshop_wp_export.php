@@ -68,6 +68,7 @@ class YGenerator {
     private $pdo;
     private $tp;
 
+    public $labels = array();
 
     private $term_catalog = 'product_cat';
     //private $term_catalog = 'pa_jeffekty-chaja-1';
@@ -190,6 +191,37 @@ public function console_log( $data ){
         return $values['name'];
     }
 
+    private function get_attribute_value ($attribute_name, $variation_id) {
+        $sql = <<< SQL
+        SELECT     meta_value
+        FROM      {$this->tp}postmeta
+        WHERE     meta_key IN (?)
+        AND       post_id = ?
+        SQL;
+        $stmt = $this->pdo->prepare($sql);
+        $opts = array('attribute_' . $attribute_name, $variation_id);
+        $stmt->execute($opts);
+        $values = $stmt->fetch();
+
+        return $values['meta_value'];
+    }
+
+    private function get_attribute_labels () {
+        $labels = array();
+
+        $sql = <<< SQL
+        SELECT     attribute_label, attribute_name
+        FROM      {$this->tp}woocommerce_attribute_taxonomies
+        SQL;
+        $stmt = $this->pdo->prepare($sql);
+        $opts = array();
+        $stmt->execute($opts);
+        while ($value = $stmt->fetch()) {
+            $labels[ 'pa_' . $value['attribute_name']] = $value['attribute_label'];
+        }
+
+        return $labels;
+    }
         private function getCategoryOfProduct($productId) {
             $taxonomy_name = $this->term_catalog;
             $values = array();
@@ -286,6 +318,7 @@ GROUP BY {$this->tp}term_taxonomy.term_id";
 
         $offers = $shop->addChild('offers');
 
+        $this->labels = $this->get_attribute_labels();
 
         $opts = array();
 
@@ -340,9 +373,23 @@ WHERE {$this->tp}posts.post_type = 'product'
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($opts);
 
-        $sql2 = "SELECT * FROM {$this->tp}posts
-WHERE {$this->tp}posts.post_type = 'product_variation'
-AND post_parent = ?";
+        $sql2 = "SELECT {$this->tp}posts.*,
+        {$this->tp}postmeta2.meta_value AS price,
+        {$this->tp}postmeta3.meta_value AS quantity,
+        {$this->tp}postmeta4.meta_value AS stock
+        FROM {$this->tp}posts
+        LEFT JOIN {$this->tp}postmeta {$this->tp}postmeta2
+          ON {$this->tp}postmeta2.post_id = {$this->tp}posts.ID
+          AND {$this->tp}postmeta2.meta_key = '_price'
+        LEFT JOIN {$this->tp}postmeta {$this->tp}postmeta3
+            ON {$this->tp}postmeta3.post_id = {$this->tp}posts.ID
+            AND {$this->tp}postmeta3.meta_key = '_stock'
+        LEFT JOIN {$this->tp}postmeta {$this->tp}postmeta4
+            ON {$this->tp}postmeta4.post_id = {$this->tp}posts.ID
+            AND {$this->tp}postmeta4.meta_key = '_stock_status'
+        WHERE {$this->tp}posts.post_type = 'product_variation'
+        AND post_parent = ?";
+
         $stmt2 = $this->pdo->prepare($sql2);
 
         $sql3 = "SELECT guid FROM {$this->tp}posts WHERE post_type='attachment' AND post_parent=?";
