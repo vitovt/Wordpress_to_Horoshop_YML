@@ -58,7 +58,9 @@ https://site.com.ua/horoshop_wp_export.php?web_admin&XML_KEY=
 Особливо при такій жахливій структурі зберігання даних як в WooCommerce.
 Якщо збільшення таймаутів в налаштуваннях PHP не допомагає, або неможливе - даний скрипт можна запускати по ssh з тими ж параметрами.
 Приклад використання:
-php HSHOP_Export_1.php --x_limit=1 --x_cat_limit=1 --x_ocver=2 > horoshop_export.xml
+php horoshop_wp_export.php --x_limit=1 --x_cat_limit=1 --x_ocver=2 > horoshop_export.xml
+<br><br>
+p.s. З багатомовністю поки-що велиткі трабли. Тому-що велика кількість різношерстних модулів перекладу, кожен з яких маю свою структуру бази даних. Тому переклад - still Work In Progress.
 <br><br>
 <b>Example screenshots:</b>
 
