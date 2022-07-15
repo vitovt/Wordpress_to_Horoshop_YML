@@ -423,8 +423,10 @@ WHERE {$this->tp}posts.post_type = 'product'
                     $offer->addAttribute("group_id", $offer_id);
                     $offer->addAttribute("id", $variation_id);
                     unset($product['product_id']);
+                    $product['price'] = $variation['price'];
+                    $product['stock'] = $variation['stock'];
 
-                    $product['name'] = $variation['post_title'];
+                    // $product['name'] = $variation['post_title'];
                     //$product['alias'] = $variation['post_name'];
 
                     // $offer_name = $product['Product'];
