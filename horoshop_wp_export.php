@@ -430,7 +430,7 @@ WHERE {$this->tp}posts.post_type = 'product'
                     // $offer_name = $product['Product'];
                     // $offer->addChild('name', $offer_name);
                     foreach ($categories as $category) {
-                        $offer->addChildWithCDATA('categoryId', $category);
+                        $offer->addChild('categoryId', $category);
                     }
                     foreach ($product as $key=>$value) {
                         $this->addChildWithLangOptions($offer, $key, $value, 0, $cdata = 'auto');
@@ -467,7 +467,7 @@ WHERE {$this->tp}posts.post_type = 'product'
                 // $offer_name = $product['Product'];
                 // $offer->addChild('name', $offer_name);
                 foreach ($categories as $category) {
-                    $offer->addChildWithCDATA('categoryId', $category);
+                    $offer->addChild('categoryId', $category);
                 }
                 foreach ($product as $key=>$value) {
                     $this->addChildWithLangOptions($offer, $key, $value, 0, $cdata = 'auto');
