@@ -333,7 +333,9 @@ GROUP BY {$this->tp}term_taxonomy.term_id";
   {$this->tp}postmeta3.meta_value AS quantity,
   {$this->tp}postmeta4.meta_value AS stock,
   {$this->tp}postmeta5.meta_value AS product_attributes_raw,
-  {$this->tp}postmeta6.meta_value AS default_attributes_raw
+  {$this->tp}postmeta6.meta_value AS default_attributes_raw,
+  {$this->tp}postmeta7.meta_value AS regular_price,
+  {$this->tp}postmeta8.meta_value AS sale_price
 FROM {$this->tp}posts
 LEFT JOIN {$this->tp}postmeta {$this->tp}postmeta1
   ON {$this->tp}postmeta1.post_id = {$this->tp}posts.ID
@@ -353,6 +355,12 @@ LEFT JOIN {$this->tp}postmeta {$this->tp}postmeta5
 LEFT JOIN {$this->tp}postmeta {$this->tp}postmeta6
   ON {$this->tp}postmeta6.post_id = {$this->tp}posts.ID
   AND {$this->tp}postmeta6.meta_key = '_default_attributes'
+LEFT JOIN {$this->tp}postmeta {$this->tp}postmeta7
+  ON {$this->tp}postmeta7.post_id = {$this->tp}posts.ID
+  AND {$this->tp}postmeta7.meta_key = '_regular_price'
+LEFT JOIN {$this->tp}postmeta {$this->tp}postmeta8
+  ON {$this->tp}postmeta8.post_id = {$this->tp}posts.ID
+  AND {$this->tp}postmeta8.meta_key = '_sale_price'
 WHERE {$this->tp}posts.post_type = 'product'
  AND {$this->tp}posts.post_status = 'publish'";
 
