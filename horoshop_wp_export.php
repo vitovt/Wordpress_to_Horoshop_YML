@@ -439,23 +439,25 @@ WHERE {$this->tp}posts.post_type = 'product'
                         $offer->addChild('picture', $picture['guid']);
                     }
                     $listAttributes = unserialize($product['product_attributes_raw']);
-                                ### Adding attributes
-                                foreach ($listAttributes as $key=> $value) {
-                                    // $valueAttribute = trim($value['value']);
-                                    if($value['is_variation']) {
-                                        $valueAttribute = $this->get_taxonomy_value($value['name'], $variation_id);
-                                        $valueAttribute = $this->cutExtraCharacters($valueAttribute);
-                                        $param = $this->addChildWithLangOptions($offer, 'param', $valueAttribute, 'ru', 0);
-                                        $param->addAttribute('type', 'modification');
-                                    } else {
-                                        $valueAttribute = $this->get_taxonomy_value($value['name'], $offer_id);
-                                        $valueAttribute = $this->cutExtraCharacters($valueAttribute);
-                                        $param = $this->addChildWithLangOptions($offer, 'param', $valueAttribute, 'ru', 0);
-                                        $param->addAttribute('type', 'attribute');
-                                    }
-                                    $param->addAttribute('name', $value['name']);
-                                    // $param->addAttribute('id', $listAttributes[$i]['attribute_id']);
-                                }
+                        ### Adding attributes
+                        foreach ($listAttributes as $key => $value) {
+                            // $valueAttribute = trim($value['value']);
+                            if($value['is_variation']) {
+                                //$valueAttribute = $this->get_taxonomy_value($value['name'], $variation_id);
+                                $valueAttribute = $this->get_attribute_value($value['name'], $variation_id);
+                                $valueAttribute = $this->cutExtraCharacters($valueAttribute);
+                                $param = $this->addChildWithLangOptions($offer, 'param', $valueAttribute, 'ru', 0);
+                                $param->addAttribute('type', 'modification');
+                            } else {
+                                $valueAttribute = $this->get_taxonomy_value($value['name'], $offer_id);
+                                $valueAttribute = $this->cutExtraCharacters($valueAttribute);
+                                $param = $this->addChildWithLangOptions($offer, 'param', $valueAttribute, 'ru', 0);
+                                $param->addAttribute('type', 'attribute');
+                            }
+                            $param->addAttribute('id', $value['name']);
+                            $param->addAttribute('name', $this->labels[$value['name']]);
+                            // $param->addAttribute('id', $listAttributes[$i]['attribute_id']);
+                        }
                     }
             } else {
 
@@ -474,26 +476,27 @@ WHERE {$this->tp}posts.post_type = 'product'
                     $offer->addChild('picture', $picture['guid']);
                 }
                 $listAttributes = unserialize($product['product_attributes_raw']);
-                            ### Adding attributes
-                            foreach ($listAttributes as $key=> $value) {
-                                // $valueAttribute = trim($value['value']);
+                    ### Adding attributes
+                    foreach ($listAttributes as $key=> $value) {
+                        // $valueAttribute = trim($value['value']);
+                        $valueAttribute = $this->get_taxonomy_value($value['name'], $offer_id);
+                        $valueAttribute = $this->cutExtraCharacters($valueAttribute);
+                        $param = $this->addChildWithLangOptions($offer, 'param', $valueAttribute, 'ru', 0);
+                        if($value['is_variation']) {
+                                $valueAttribute = $this->get_taxonomy_value($value['name'], $variation_id);
+                                $valueAttribute = $this->cutExtraCharacters($valueAttribute);
+                                $param = $this->addChildWithLangOptions($offer, 'param', $valueAttribute, 'ru', 0);
+                                $param->addAttribute('type', 'modification');
+                            } else {
                                 $valueAttribute = $this->get_taxonomy_value($value['name'], $offer_id);
                                 $valueAttribute = $this->cutExtraCharacters($valueAttribute);
                                 $param = $this->addChildWithLangOptions($offer, 'param', $valueAttribute, 'ru', 0);
-                                if($value['is_variation']) {
-                                        $valueAttribute = $this->get_taxonomy_value($value['name'], $variation_id);
-                                        $valueAttribute = $this->cutExtraCharacters($valueAttribute);
-                                        $param = $this->addChildWithLangOptions($offer, 'param', $valueAttribute, 'ru', 0);
-                                        $param->addAttribute('type', 'modification');
-                                    } else {
-                                        $valueAttribute = $this->get_taxonomy_value($value['name'], $offer_id);
-                                        $valueAttribute = $this->cutExtraCharacters($valueAttribute);
-                                        $param = $this->addChildWithLangOptions($offer, 'param', $valueAttribute, 'ru', 0);
-                                        $param->addAttribute('type', 'attribute');
-                                }
-                                $param->addAttribute('name', $value['name']);
-                                // $param->addAttribute('id', $listAttributes[$i]['attribute_id']);
-                            }
+                                $param->addAttribute('type', 'attribute');
+                        }
+                        $param->addAttribute('id', $value['name']);
+                        $param->addAttribute('name', $this->labels[$value['name']]);
+                        // $param->addAttribute('id', $listAttributes[$i]['attribute_id']);
+                    }
             }
         }
 
