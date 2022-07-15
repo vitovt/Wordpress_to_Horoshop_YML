@@ -433,7 +433,7 @@ WHERE {$this->tp}posts.post_type = 'product'
                         $offer->addChildWithCDATA('categoryId', $category);
                     }
                     foreach ($product as $key=>$value) {
-                        $offer->addChildWithCDATA($key, $value);
+                        $this->addChildWithLangOptions($offer, $key, $value, 0, $cdata = 'auto');
                     }
                     foreach ($pictures as $picture) {
                         $offer->addChild('picture', $picture['guid']);
@@ -470,7 +470,7 @@ WHERE {$this->tp}posts.post_type = 'product'
                     $offer->addChildWithCDATA('categoryId', $category);
                 }
                 foreach ($product as $key=>$value) {
-                    $offer->addChildWithCDATA($key, $value);
+                    $this->addChildWithLangOptions($offer, $key, $value, 0, $cdata = 'auto');
                 }
                 foreach ($pictures as $picture) {
                     $offer->addChild('picture', $picture['guid']);
@@ -503,7 +503,7 @@ WHERE {$this->tp}posts.post_type = 'product'
         return $xml;
 
     }
-    public function addChildWithLangOptions($offer, $name, $value = NULL, $langid, $cdata = 0) {
+    public function addChildWithLangOptions($offer, $name, $value = NULL, $langid = 0, $cdata = 0) {
     //echo $value . PHP_EOL;
     //$value = htmlspecialchars($value);
     //$search = array('"', '&');
@@ -513,6 +513,7 @@ WHERE {$this->tp}posts.post_type = 'product'
     //ремонтуємо калічний опис товарів
     //згідно з: https://webcollab.sourceforge.io/unicode.html (Character Validation)
     if($this->x_fix_utf) {
+    $value = trim($value);
     $value = preg_replace('/[\x00-\x08\x10\x0B\x0C\x0E-\x19\x7F]'.
     '|(?<=^|[\x00-\x7F])[\x80-\xBF]+'.
     '|([\xC0\xC1]|[\xF0-\xFF])[\x80-\xBF]*'.
@@ -528,12 +529,21 @@ WHERE {$this->tp}posts.post_type = 'product'
             $name .= '_' . str_replace(array(' ', '-'), '_', trim($this->languages[$langid]['code']));
         }
     }
+    if($cdata == 'auto') {
+        if ( preg_match('/[a-z_\-0-9]/i', $value) || $value == '') {
+            $cdata = 0;
+        } else {
+            $cdata = 1;
+        }
+    }
         if($cdata) {
             $new_child = $offer->addChildWithCDATA($name, $value);
         } else {
             $new_child = $offer->addChild($name, $value);
         }
-        $new_child->addAttribute('langid', $langid);
+        if ($langid) {
+            $new_child->addAttribute('langid', $langid);
+        }
 
     return $new_child;
     }
