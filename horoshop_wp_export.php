@@ -795,10 +795,15 @@ WHERE {$this->tp}posts.post_type = 'product'
         }
     }
     if($cdata == 'auto') {
-        if ( preg_match('/[a-z_\-0-9]/i', $value) || $value == '') {
+        $cdata = 1;
+        if($value == '') {
             $cdata = 0;
         } else {
-            $cdata = 1;
+            if (preg_match('/^[A-Za-z0-9-_]+$/D', $value)) {
+            // if ( preg_match('/[a-z_\-0-9]/i', $value)) {
+            // if (mb_check_encoding($value, 'ASCII')) {
+                $cdata = 0;
+            }
         }
     }
         if($cdata) {
