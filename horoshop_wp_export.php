@@ -586,6 +586,7 @@ GROUP BY {$this->tp}term_taxonomy.term_id";
   {$this->tp}posts.ID AS product_id,
   {$this->tp}posts.post_title AS name,
   {$this->tp}posts.post_content AS description,
+  {$this->tp}posts.post_excerpt AS description_short,
   {$this->tp}posts.post_name AS alias,
   {$this->tp}posts.guid AS guid,
   {$this->tp}postmeta1.meta_value AS article,
